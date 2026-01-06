@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1일 기술 컨퍼런스</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .search-bar {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 30px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        #schedule-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .schedule-item {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: box-shadow 0.3s ease;
+        }
+        .schedule-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .time-slot {
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .talk-title {
+            font-size: 1.4em;
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+        }
+        .speakers {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        .description {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .categories {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .category-tag {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+        .break-item {
+            text-align: center;
+            padding: 20px;
+            background-color: #e8f6f3;
+            border: 1px dashed #a3e4d7;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #1abc9c;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>1일 기술 컨퍼런스</h1>
+        </header>
+
+        <input type="text" id="search-input" class="search-bar" placeholder="카테고리(예: AI, Web, Cloud)로 강연 검색...">
+
+        <div id="schedule-container"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const talks = [
+                {
+                    title: "차세대 웹 프레임워크 탐구",
+                    speakers: ["김민준"],
+                    categories: ["Web", "JavaScript", "Frontend"],
+                    duration: 60,
+                    description: "최신 웹 프레임워크의 동향을 알아보고, 실제 프로젝트에 어떻게 적용할 수 있는지 논의합니다."
+                },
+                {
+                    title: "클라우드 네이티브 데이터베이스 전략",
+                    speakers: ["이서연", "박지훈"],
+                    categories: ["Cloud", "Database", "Backend"],
+                    duration: 60,
+                    description: "확장성과 안정성을 모두 잡는 클라우드 네이티브 환경에서의 데이터베이스 아키텍처 설계 방법을 소개합니다."
+                },
+                {
+                    title: "AI를 활용한 사용자 경험(UX) 최적화",
+                    speakers: ["최유리"],
+                    categories: ["AI", "UX", "Data"],
+                    duration: 60,
+                    description: "인공지능 기술을 통해 어떻게 사용자 행동을 분석하고, 개인화된 경험을 제공하여 UX를 개선할 수 있는지 알아봅니다."
+                },
+                {
+                    title: "효율적인 DevOps 파이프라인 구축하기",
+                    speakers: ["강현우"],
+                    categories: ["DevOps", "Cloud", "Automation"],
+                    duration: 60,
+                    description: "CI/CD 자동화부터 모니터링까지, 개발 생산성을 극대화하는 DevOps 파이프라인 구축 노하우를 공유합니다."
+                },
+                {
+                    title: "양자 컴퓨팅의 현재와 미래",
+                    speakers: ["한지아", "윤태영"],
+                    categories: ["Quantum", "Future", "Core Tech"],
+                    duration: 60,
+                    description: "아직은 생소한 양자 컴퓨팅의 기본 원리를 이해하고, 앞으로 우리 기술 생태계에 미칠 영향력을 예측해봅니다."
+                },
+                {
+                    title: "실시간 데이터 처리를 위한 아키텍처 설계",
+                    speakers: ["정다솜"],
+                    categories: ["Data", "Backend", "Architecture"],
+                    duration: 60,
+                    description: "대용량의 실시간 데이터를 안정적으로 처리하기 위한 스트리밍 아키텍처 설계 패턴과 실제 적용 사례를 다룹니다."
+                }
+            ];
+
+            const scheduleContainer = document.getElementById('schedule-container');
+            const searchInput = document.getElementById('search-input');
+
+            const formatTime = (date) => {
+                return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+            };
+
+            const renderSchedule = (talksToRender) => {
+                scheduleContainer.innerHTML = '';
+                let currentTime = new Date();
+                currentTime.setHours(10, 0, 0, 0); // Start time: 10:00 AM
+
+                let talkCount = 0;
+                talks.forEach((talk, index) => {
+                    // If we are filtering, only render the talks that are in the filtered list
+                    if (talksToRender.length > 0 && !talksToRender.includes(talk)) {
+                        return;
+                    }
+
+                    // Add a break before every talk except the first one
+                    if (talkCount > 0) {
+                        const breakStartTime = new Date(currentTime);
+                        currentTime.setMinutes(currentTime.getMinutes() + 10);
+                        const breakItem = document.createElement('div');
+                        breakItem.className = 'break-item';
+                        breakItem.innerHTML = `☕️ 휴식 시간 (${formatTime(breakStartTime)} - ${formatTime(currentTime)})`;
+                        scheduleContainer.appendChild(breakItem);
+                    }
+                    
+                    // Add lunch break after the 3rd talk in the original schedule
+                    if (index === 3) {
+                         const lunchStartTime = new Date(currentTime);
+                         currentTime.setMinutes(currentTime.getMinutes() + 60);
+                         const lunchItem = document.createElement('div');
+                         lunchItem.className = 'break-item';
+                         lunchItem.style.backgroundColor = '#fff0f0';
+                         lunchItem.style.borderColor = '#f5b7b1';
+                         lunchItem.style.color = '#e74c3c';
+                         lunchItem.innerHTML = `🍽 점심 시간 (${formatTime(lunchStartTime)} - ${formatTime(currentTime)})`;
+                         scheduleContainer.appendChild(lunchItem);
+                    }
+
+                    const startTime = new Date(currentTime);
+                    currentTime.setMinutes(currentTime.getMinutes() + talk.duration);
+                    const endTime = new Date(currentTime);
+
+                    const talkElement = document.createElement('div');
+                    talkElement.className = 'schedule-item';
+
+                    const categoriesHTML = talk.categories.map(cat => `<span class="category-tag">${cat}</span>`).join('');
+
+                    talkElement.innerHTML = `
+                        <div class="time-slot">${formatTime(startTime)} - ${formatTime(endTime)}</div>
+                        <h2 class="talk-title">${talk.title}</h2>
+                        <p class="speakers">발표자: ${talk.speakers.join(', ')}</p>
+                        <p class="description">${talk.description}</p>
+                        <div class="categories">${categoriesHTML}</div>
+                    `;
+                    scheduleContainer.appendChild(talkElement);
+                    talkCount++;
+                });
+            };
+
+            const handleSearch = (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredTalks = talks.filter(talk => 
+                    talk.categories.some(cat => cat.toLowerCase().includes(searchTerm))
+                );
+                renderSchedule(filteredTalks);
+            };
+
+            searchInput.addEventListener('input', handleSearch);
+
+            // Initial render
+            renderSchedule(talks);
+        });
+    </script>
+
+</body>
+</html>
